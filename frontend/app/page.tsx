@@ -28,6 +28,15 @@ export default function Dashboard() {
     connectWebSocket()
   }, [])
 
+  // Debounced Search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchMessages(1, false)
+    }, 300)
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [search, fetchMessages])
+
   const observerTarget = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -55,11 +64,8 @@ export default function Dashboard() {
     }
   }, [pagination, fetchMessages])
 
-  const filteredMessages = messages.filter(m =>
-    m.from.includes(search) ||
-    m.to.includes(search) ||
-    m.body.includes(search)
-  )
+  // Client-side filtering removed in favor of backend search
+  const filteredMessages = messages
 
   const handleClear = async () => {
     if (confirm("Are you sure you want to delete all messages?")) {

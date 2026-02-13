@@ -42,17 +42,36 @@ export const useMessageStore = create<MessageStore>((set, get) => ({
   clearMessages: () => set({ messages: [], pagination: { page: 1, limit: 50, total: 0, unread: 0 } }),
   fetchMessages: async (page = 1, append = false) => {
     try {
-      const res = await fetch(`/api/v1/messages?page=${page}&limit=50`)
+      const search = get().search
+      const query = new URLSearchParams({
+        page: page.toString(),
+        limit: '50',
+        search: search || ''
+      })
+      const res = await fetch(`/api/v1/messages?${query.toString()}`)
       if (res.ok) {
         const json = await res.json()
         set((state) => {
           const newMessages = json.data || []
+
+          if (!append) {
+            return {
+              messages: newMessages,
+              pagination: {
+                page: json.meta.page,
+                limit: json.meta.limit,
+                total: json.meta.total,
+                unread: json.meta.unread
+              }
+            }
+          }
+
           // Deduplicate: Filter out messages that already exist in state
           const existingIds = new Set(state.messages.map(m => m.id))
           const uniqueNewMessages = newMessages.filter((m: SMS) => !existingIds.has(m.id))
 
           return {
-            messages: append ? [...state.messages, ...uniqueNewMessages] : newMessages,
+            messages: [...state.messages, ...uniqueNewMessages],
             pagination: {
               page: json.meta.page,
               limit: json.meta.limit,

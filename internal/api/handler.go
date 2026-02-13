@@ -42,6 +42,7 @@ func SetupRoutes(r chi.Router) {
 func GetMessages(w http.ResponseWriter, r *http.Request) {
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
+	search := r.URL.Query().Get("search")
 
 	page := 1
 	if pageStr != "" {
@@ -52,13 +53,13 @@ func GetMessages(w http.ResponseWriter, r *http.Request) {
 		fmt.Sscanf(limitStr, "%d", &limit)
 	}
 
-	messages, err := db.GetMessages(page, limit)
+	messages, err := db.GetMessages(page, limit, search)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	total, unread, err := db.GetStats()
+	total, unread, err := db.GetStats(search)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -56,10 +56,21 @@ func SaveSMS(sms *model.SMS) (int64, error) {
 	return res.LastInsertId()
 }
 
-func GetMessages(page, limit int) ([]model.SMS, error) {
+func GetMessages(page, limit int, search string) ([]model.SMS, error) {
 	offset := (page - 1) * limit
-	query := `SELECT id, sender, recipient, body, is_read, created_at FROM sms ORDER BY created_at DESC LIMIT ? OFFSET ?`
-	rows, err := DB.Query(query, limit, offset)
+	query := `SELECT id, sender, recipient, body, is_read, created_at FROM sms`
+	var args []interface{}
+
+	if search != "" {
+		query += ` WHERE sender LIKE ? OR recipient LIKE ? OR body LIKE ?`
+		searchParam := "%" + search + "%"
+		args = append(args, searchParam, searchParam, searchParam)
+	}
+
+	query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`
+	args = append(args, limit, offset)
+
+	rows, err := DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,12 +87,26 @@ func GetMessages(page, limit int) ([]model.SMS, error) {
 	return messages, nil
 }
 
-func GetStats() (total int, unread int, err error) {
-	err = DB.QueryRow("SELECT COUNT(*) FROM sms").Scan(&total)
+func GetStats(search string) (total int, unread int, err error) {
+	queryTotal := "SELECT COUNT(*) FROM sms"
+	queryUnread := "SELECT COUNT(*) FROM sms WHERE is_read = FALSE"
+	var args []interface{}
+
+	if search != "" {
+		where := " WHERE (sender LIKE ? OR recipient LIKE ? OR body LIKE ?)"
+		queryTotal = "SELECT COUNT(*) FROM sms" + where
+		// For unread with search, we need AND
+		queryUnread = "SELECT COUNT(*) FROM sms WHERE is_read = FALSE AND (sender LIKE ? OR recipient LIKE ? OR body LIKE ?)"
+
+		searchParam := "%" + search + "%"
+		args = append(args, searchParam, searchParam, searchParam)
+	}
+
+	err = DB.QueryRow(queryTotal, args...).Scan(&total)
 	if err != nil {
 		return 0, 0, err
 	}
-	err = DB.QueryRow("SELECT COUNT(*) FROM sms WHERE is_read = FALSE").Scan(&unread)
+	err = DB.QueryRow(queryUnread, args...).Scan(&unread)
 	return total, unread, err
 }
 
