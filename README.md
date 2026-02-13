@@ -2,7 +2,7 @@
 
 A high-performance, single-binary SMS testing service (similar to MailHog but for SMS). It provides a REST API to ingest simulating SMS messages and a real-time web dashboard to view them.
 
-![SMS Tester Dashboard](https://via.placeholder.com/800x400?text=SMS+Tester+Dashboard)
+![SMS Tester Dashboard](assets/dashboard.png)
 
 ## Features
 
