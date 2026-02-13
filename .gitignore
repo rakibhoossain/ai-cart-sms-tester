@@ -23,3 +23,26 @@ go.work.sum
 
 # env file
 .env
+.env.*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Editor Directories
+.idea/
+.vscode/
+
+# Build Artifacts
+dist/
+bin/
+sms-tester
+sms-tester-*
+
+# Frontend dependencies (if any live in root, though they are in frontend/)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Temporary storage
+storage/
