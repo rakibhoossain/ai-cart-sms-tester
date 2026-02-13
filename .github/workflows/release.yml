@@ -27,11 +27,14 @@ jobs:
         working-directory: ./frontend
         run: pnpm build
 
+      - name: Debug Frontend Build
+        run: ls -R frontend/out
+
       - name: Upload Frontend Artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: frontend/out
+          path: frontend/out/
 
   build-backend:
     needs: build-frontend
@@ -64,6 +67,9 @@ jobs:
         with:
           name: frontend-dist
           path: frontend/out
+
+      - name: Debug Downloaded Artifact
+        run: ls -R frontend/out
 
       - name: Build Binary
         env:

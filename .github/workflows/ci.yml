@@ -12,11 +12,24 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Frontend Dependencies
+      working-directory: ./frontend
+      run: npm install -g pnpm && pnpm install
+
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: pnpm build
     
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.22'
+        go-version: '1.24'
     
     - name: Cache Go modules
       uses: actions/cache@v4
@@ -57,10 +70,10 @@ jobs:
         ls -la dist/
         
         # Verify all expected files exist
-        test -f dist/ai-cart-websocket-linux-amd64
-        test -f dist/ai-cart-websocket-windows-amd64.exe
-        test -f dist/ai-cart-websocket-darwin-amd64
-        test -f dist/ai-cart-websocket-darwin-arm64
+        test -f dist/sms-tester-linux-amd64
+        test -f dist/sms-tester-windows-amd64.exe
+        test -f dist/sms-tester-darwin-amd64
+        test -f dist/sms-tester-darwin-arm64
         test -f dist/checksums.txt
         
         echo "✅ All build artifacts created successfully"
@@ -68,6 +81,6 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ai-cart-websocket-binaries
+        name: sms-tester-binaries
         path: dist/*.tar.gz
         retention-days: 7
