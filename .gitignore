@@ -46,3 +46,6 @@ yarn-error.log
 
 # Temporary storage
 storage/
+*.db
+*.db-shm
+*.db-wal
